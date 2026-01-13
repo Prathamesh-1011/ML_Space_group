@@ -94,7 +94,6 @@ evaluation_metric: macro F1
 
 ## 6. Final Evaluation Results (TEST SET)
 
-> **Fill these after final run**
 
 ### XGBoost Results
 
