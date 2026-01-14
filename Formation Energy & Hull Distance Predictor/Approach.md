@@ -1,5 +1,4 @@
 # Model-2: Formation Energy & Hull Distance Prediction  
----
 
 ## 1. Problem Framing
 
@@ -16,7 +15,6 @@ We formulate **Model-2** as a **multi-task supervised learning problem** using *
 
 This design mirrors the setup used in **CrabNet** and **Roost**, which are state-of-the-art for structure-agnostic thermodynamic prediction.
 
----
 
 ## 2. Why Multi-Task Learning (MTL)
 
@@ -30,7 +28,6 @@ Training a **single shared model** to predict both properties:
 - Reduces error via shared physical representations
 - Matches best practices reported in Matbench Discovery and CrabNet
 
----
 
 ## 3. Input Representation (From CSV → Model)
 
@@ -50,7 +47,6 @@ This ensures:
 - Compatibility with arbitrary chemistries
 - No information leakage from structure
 
----
 
 ## 4. Shared Representation Learning
 
@@ -62,7 +58,6 @@ A **shared neural backbone** is trained to learn a latent representation of comp
 
 This shared representation acts as a **thermodynamic fingerprint** of the material.
 
----
 
 ## 5. Task-Specific Prediction Heads
 
@@ -83,7 +78,6 @@ From the shared representation, three task-specific heads are attached:
 - Predicts whether Ehull < stability threshold
 - Sharpens decision boundaries for screening
 
----
 
 ## 6. Training Strategy
 
@@ -100,7 +94,6 @@ This encourages:
 - Polymorph leakage is avoided
 - Matches Materials Project and Matbench protocols
 
----
 
 ## 7. Prediction Flow (CSV → Output)
 
@@ -116,7 +109,6 @@ This encourages:
    - Filtering unstable compositions
    - Prioritizing DFT calculations
 
----
 
 ## 8. Evaluation Metrics
 
@@ -130,7 +122,6 @@ This encourages:
 
 Evaluation focuses on **screening quality**, not just numerical accuracy.
 
----
 
 ## 9. Why This Approach Works with CSV Data
 
@@ -139,7 +130,6 @@ Evaluation focuses on **screening quality**, not just numerical accuracy.
 - Matches the highest-accuracy regime achievable without structure
 - Proven effective by CrabNet, Roost, and Matbench Discovery
 
----
 
 ## 10. Role in the Overall Discovery Pipeline
 
@@ -148,7 +138,6 @@ This model acts as a **pre-DFT filter**:
 - Reduces DFT workload by orders of magnitude
 - Feeds only high-probability stable materials into later CSP or structure-based models
 
----
 
 ## 11. Key Assumptions & Limitations
 
@@ -158,7 +147,6 @@ This model acts as a **pre-DFT filter**:
 
 These limitations are explicitly acknowledged in the literature and are acceptable for early-stage discovery.
 
----
 
 ## Summary
 
