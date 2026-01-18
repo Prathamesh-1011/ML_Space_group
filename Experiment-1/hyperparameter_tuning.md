@@ -98,9 +98,9 @@ evaluation_metric: macro F1
 ### XGBoost Results
 
 * **Accuracy:** `53.67%`
-* **Top-3 Accuracy:** `53.67`
-* **Top-5 Accuracy:** `75.87`
-* **Macro F1-score:** `87.64`
+* **Top-1 Accuracy:** `53.67`
+* **Top-3 Accuracy:** `75.87`
+* **Top-5 Accuracy:** `87.64`
 
 ---
 
