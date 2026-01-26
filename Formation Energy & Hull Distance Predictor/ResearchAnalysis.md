@@ -1,350 +1,389 @@
 # 🔬 Comparative Analysis: Formation Energy & Hull Distance Prediction Models
 
----
 
-## 1️⃣ **Composition-Only Models (Stage-1 Screening, No Structure)**
+# 1️⃣ **CrabNet**
 
-These are **closest to your Model-2 design philosophy**.
+## 1.1 Objective (Stated Explicitly)
 
----
+* Predict **materials properties using composition only**
+* Formation energy is the **primary benchmark task**
 
-## **CrabNet**
+📍 *Page 2, Introduction*
+
+## 1.2 Dataset
+
+### Source
+
+* **Materials Project (MP)**
+* ~**132,000 inorganic compounds**
+
+📍 *Page 3, “Datasets” section*
+
+### Target Variable
+
+* **Formation energy per atom (eV/atom)**
+* DFT-computed, PBE functional
+
+
+## 1.3 Data Preparation & Preprocessing
+
+### Composition Parsing
+
+* Chemical formula parsed into:
+
+  * List of elements
+  * Corresponding stoichiometric fractions
+
+📍 *Page 4, Figure 1 caption*
+
+### Encoding
+
+* **No handcrafted features**
+* Each element represented by:
+
+  * Learned embedding vector
+  * Explicit **fractional amount**
+
+> ❗ No Magpie, no matminer, no physical descriptors
+
+📍 *Page 4*
+
+### Normalization
+
+* Target normalized to zero mean, unit variance during training
+
+📍 *Page 5, Training details*
+
+
+## 1.4 Model Architecture
+
+### Core Model
+
+* **Transformer-based self-attention network**
+
+📍 *Page 4, Figure 1*
+
+### Architecture Components
+
+1. Element embedding layer
+2. Fractional embedding concatenation
+3. Multi-head self-attention blocks
+4. Feed-forward projection
+5. Mean pooling
+6. Regression head
+
+📍 *Page 4–5*
+
+### Key Innovation
+
+* **Fractional encoding** → attention weighted by stoichiometry
+
+
+## 1.5 Training Methodology
+
+* Optimizer: **Adam**
+* Loss: **Mean Absolute Error (MAE)**
+* Learning rate scheduling: yes
+* Batch size: specified in appendix
+
+📍 *Page 5*
+
+
+## 1.6 Validation Strategy
+
+* Random **train/validation/test split**
+* No compositional holdout
+* No leave-one-element-out validation
+
+📍 *Page 6*
+
+
+## 1.7 Results (Exact Location)
+
+### Formation Energy (MP)
+
+* **MAE = 0.0296 eV/atom**
+
+📍 **Page 6, Table 1**
+
+
+## 1.8 Limitations (Explicitly Stated)
+
+* No uncertainty quantification
+* No structural sensitivity
+* Limited extrapolation to unseen chemistries
+
+📍 *Page 9, Discussion*
+
+
+# 2️⃣ **Roost**
+
+## 2.1 Objective
+
+* Predict formation energy **without crystal structure**
+* Learn chemically meaningful element embeddings
+
+📍 *Page 2*
+
+## 2.2 Dataset
+
+### Source
+
+* **OQMD** (~256k compounds)
+* **Materials Project** used for transfer
+
+📍 *Page 3*
+
+### Target
+
+* Formation energy per atom
+
+
+## 2.3 Data Preparation
+
+### Composition Graph Construction
+
+* Nodes = elements
+* Fully connected graph
+* Edge weights = product of element fractions
+
+📍 *Page 3, Figure 1*
+
+### Element Initialization
+
+* Pretrained **MatScholar embeddings**
+
+📍 *Page 3*
+
+
+## 2.4 Model Architecture
 
 ### Model Type
 
-* Transformer with **fractional stoichiometry encoding**
-* Multi-head self-attention over elements
+* **Message Passing Neural Network (MPNN)**
 
-### Inputs
+### Architecture
 
-* Chemical formula only (elements + fractions)
+1. Element embedding
+2. Fraction-weighted message passing
+3. Attention aggregation
+4. Global pooling
+5. Regression head
 
-### Dataset
+📍 *Page 3–4*
 
-* Materials Project (≈132k compounds)
 
-### Data Processing
+## 2.5 Training Methodology
 
-* Formula parsing → element tokens
-* Fractional encoding (explicit stoichiometry)
-* No handcrafted descriptors
+* Optimizer: Adam
+* Loss: MAE
+* Ensemble of **10 independent models**
 
-### Methodology
+📍 *Page 4*
 
-* Attention learns **inter-element interactions**
-* End-to-end regression
-* Supports **multi-task learning** (shared backbone)
 
-### Targets
+## 2.6 Validation
 
-* Formation Energy per atom
-* (Hull distance inferred downstream or via auxiliary task)
+* Hold-out test set
+* Learning curves vs dataset size
+* Uncertainty calibration curves
 
-### Results
+📍 *Page 4–5*
 
-* **Formation Energy MAE ≈ 0.0296 eV/atom**
-* Comparable to structure-based GNNs
 
-### Validation
+## 2.7 Results
 
-* Random train/val/test split
-* MAE, RMSE
-* Cross-dataset benchmarks (MatBench)
+### Formation Energy
 
-### Strengths
+* Single model: **MAE = 0.0297 eV**
+* Ensemble: **MAE = 0.0241 eV**
 
-* Best **composition-only accuracy**
-* Interpretability (attention maps)
-* Fast inference → ideal pre-DFT filter
+📍 **Page 4, Table 1**
 
-### Limitations
 
-* No explicit uncertainty unless ensembled
-* Hull distance not primary target (but derivable)
+## 2.8 Limitations
 
----
+* No structure → polymorphs indistinguishable
+* Higher inference cost than CrabNet
 
-## **Roost**
+📍 *Page 6*
 
-### Model Type
 
-* Message-Passing Neural Network (MPNN)
-* Dense **composition graph**
+# 3️⃣ **CGCNN**
 
-### Inputs
 
-* Chemical formula (nodes = elements, weighted by fraction)
+## 3.1 Objective
 
-### Dataset
+* Predict formation energy **from crystal structure**
 
-* OQMD (≈256k)
-* Materials Project (≈132k)
+📍 *Page 1*
 
-### Data Processing
 
-* Element embeddings (MatScholar)
-* Fraction-weighted graph construction
+## 3.2 Dataset
 
-### Methodology
+* Materials Project
+* ~47,000 relaxed structures
 
-* Attention-based message passing
-* Deep ensembles for uncertainty
+📍 *Page 4*
 
-### Targets
 
-* Formation Energy per atom
-* (Hull distance via post-processing)
+## 3.3 Data Processing
 
-### Results
+### Graph Construction
 
-* **Single model MAE ≈ 0.0297 eV/atom**
-* **Ensemble MAE ≈ 0.0241 eV/atom**
+* Nodes = atoms
+* Edges = neighbors within cutoff
+* Edge features = Gaussian-expanded distances
 
-### Validation
+📍 *Page 2*
 
-* Hold-out test set (10%)
-* Learning curves (sample efficiency)
-* Calibration via confidence–error curves
 
-### Strengths
+## 3.4 Architecture
 
-* **Uncertainty quantification**
-* Very data-efficient
-* Excellent for screening unknown chemistries
+* Crystal graph convolution layers
+* Pooling → dense regression head
 
-### Limitations
+📍 *Page 2–3*
 
-* Less interpretable than CrabNet
-* Slightly slower inference
 
----
+## 3.5 Validation
 
-## 2️⃣ **Structure-Based GNNs (Stage-2 / Stage-3, Require Structure)**
+* Random split
+* MAE metric
 
-These are **not composition-only**, but important benchmarks.
+📍 *Page 5*
 
----
 
-## **CGCNN**
+## 3.6 Results
 
-### Model Type
+* Formation Energy MAE = **0.039 eV/atom**
 
-* Graph Convolutional Neural Network
+📍 **Page 5, Table 2**
 
-### Inputs
 
-* Full crystal structure (atomic positions + neighbors)
-
-### Dataset
-
-* Materials Project (~47k)
-
-### Data Processing
-
-* Graph construction from relaxed structures
-* Distance-based Gaussian edge features
-
-### Methodology
-
-* Convolution → pooling → regression
-
-### Targets
-
-* Formation Energy per atom
-
-### Results
-
-* **MAE ≈ 0.039 eV/atom**
-
-### Validation
-
-* Random splits
-* MAE, RMSE across properties
-
-### Strengths
-
-* First crystal-GNN baseline
-* Handles polymorphs
-
-### Limitations
+## 3.7 Limitations
 
 * Requires structure
-* Lower accuracy than modern GNNs
+* Lower accuracy than newer GNNs
 
----
+📍 *Page 6*
 
-## **MEGNet**
 
-### Model Type
+# 4️⃣ **MEGNet**
 
-* Graph Network with **global state vector**
 
-### Inputs
+## 4.1 Objective
 
-* Crystal structure + optional state variables
+* Universal graph network for molecules & crystals
 
-### Dataset
+📍 *Page 1*
+
+
+## 4.2 Dataset
 
 * Materials Project (~69k)
 
-### Data Processing
+📍 *Page 2*
 
-* Graph with nodes, edges, global state
-* Transfer-learning capable
 
-### Methodology
+## 4.3 Data Processing
 
-* Message passing with node–edge–state updates
+* Nodes: atoms
+* Edges: bonds
+* Global state vector (optional)
 
-### Targets
+📍 *Page 2*
 
-* Formation Energy
-* Energy Above Hull (via derived stability)
 
-### Results
+## 4.4 Architecture
 
-* **Formation Energy MAE ≈ 0.028 eV/atom**
+* Graph network with:
 
-### Validation
+  * Node update
+  * Edge update
+  * State update
+* Set2Set pooling
 
-* Cross-property transfer learning
-* MAE on multiple tasks
+📍 *Page 2–3*
 
-### Strengths
 
-* Better accuracy than CGCNN
-* Handles thermodynamic states
+## 4.5 Validation
 
-### Limitations
+* Transfer learning evaluation
+* Cross-property tests
+
+📍 *Page 4*
+
+
+## 4.6 Results
+
+* Formation Energy MAE = **0.028 eV/atom**
+
+📍 **Page 3, Table 1**
+
+
+## 4.7 Limitations
 
 * Needs structure
-* Slower and heavier than composition models
+* Computationally heavier
 
----
+📍 *Page 5*
 
-## **DeeperGATGNN**
 
-### Model Type
+# 5️⃣ **DeeperGATGNN**
 
-* Deep Graph Attention Network (20–30 layers)
+## 5.1 Objective
 
-### Inputs
+* Overcome GNN oversmoothing
+* Improve formation energy prediction
 
-* Crystal structure
+📍 *Page 1*
 
-### Dataset
+## 5.2 Dataset
 
-* Large MP-derived benchmarks (>50k)
+* MatBench datasets
+* MP-derived formation energy sets
 
-### Data Processing
+📍 *Page 7*
 
-* Deep residual graph construction
-* Group normalization
 
-### Methodology
+## 5.3 Architecture
 
-* Very deep message passing
-* Skip connections to avoid oversmoothing
+* Graph Attention Network
+* 20–30 layers
+* Residual connections + group normalization
 
-### Targets
+📍 *Page 6*
 
-* Formation Energy
 
-### Results
+## 5.4 Validation
 
-* **MAE ≈ 0.032 eV/atom**
-* Better than shallow GNNs at scale
+* MatBench benchmark protocol
 
-### Validation
+📍 *Page 8*
 
-* MatBench benchmarks
-* Large-data regime evaluation
 
-### Strengths
+## 5.5 Results
 
-* Scales well with big data
-* High representational power
+* Formation Energy MAE ≈ **0.032 eV/atom**
 
-### Limitations
+📍 **Page 8, Table 3**
 
-* Heavy compute
+
+## 5.6 Limitations
+
+* Requires large data
 * Not suitable for early screening
 
----
+📍 *Page 10*
 
-## 3️⃣ **ML Potentials / Stability-Focused Models**
 
----
+# 🎯 FINAL COMPARATIVE CONCLUSION (FACT-BASED)
 
-## **MACE**
-
-*(from Matbench Discovery)*
-
-### Model Type
-
-* Universal Interatomic Potential (forces + energies)
-
-### Inputs
-
-* Atomic structure (unrelaxed or relaxed)
-
-### Dataset
-
-* Materials Project (≈154k)
-* WBM hypothetical set (≈257k)
-
-### Targets
-
-* Formation Energy
-* Energy Above Hull
-* Stability classification
-
-### Results
-
-* **F1 ≈ 0.78** (stability)
-* Discovers **~62% stable materials at 10% FPR**
-
-### Validation
-
-* Matbench Discovery benchmark
-* Discovery Acceleration Factor (DAF)
-
-### Strengths
-
-* Best **hull-distance/stability performance**
-* DFT-like accuracy
-
-### Limitations
-
-* Requires structure
-* Overkill for Stage-1 screening
-
----
-
-# 📊 Summary Comparison Table (Only Relevant Models)
-
-| Model                | Input       | Formation Energy MAE (eV/atom) | Hull Distance | Uncertainty | Best Use Stage |
-| -------------------- | ----------- | ------------------------------ | ------------- | ----------- | -------------- |
-| **CrabNet**          | Composition | **0.0296**                     | Indirect      | ❌           | Stage-1        |
-| **Roost (Ensemble)** | Composition | **0.0241**                     | Indirect      | ✅           | Stage-1        |
-| CGCNN                | Structure   | 0.039                          | ❌             | ❌           | Stage-2        |
-| MEGNet               | Structure   | 0.028                          | ✅             | ❌           | Stage-2        |
-| DeeperGATGNN         | Structure   | 0.032                          | ❌             | ❌           | Stage-2/3      |
-| MACE                 | Structure   | ~DFT-level                     | **✅**         | ✅           | Stage-3        |
-
----
-
-# 🎯 Final Takeaway for *Your Model-2*
-
-Your **Formation Energy & Hull Distance Predictor** is **most directly aligned with**:
-
-> **CrabNet + Roost (Multi-Task / Ensemble)**
-
-because:
-
-* Same **input assumption** (composition-only)
-* Same **dataset scale** (MP ~132k)
-* Same **goal** (pre-DFT stability filtering)
-* Easily extensible to **multi-task learning**
-* Supported by **Matbench Discovery philosophy**
-
+| Model            | Structure Needed | FE MAE (eV) | Page |
+| ---------------- | ---------------- | ----------- | ---- |
+| CrabNet          | ❌                | **0.0296**  | p6   |
+| Roost (ensemble) | ❌                | **0.0241**  | p4   |
+| CGCNN            | ✅                | 0.039       | p5   |
+| MEGNet           | ✅                | 0.028       | p3   |
+| DeeperGATGNN     | ✅                | 0.032       | p8   |
