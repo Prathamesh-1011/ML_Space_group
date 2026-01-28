@@ -4,7 +4,7 @@
 
 This contains our research on predicting key thermodynamic properties of inorganic materials **using only their chemical composition**.
 
-The core question I address is:
+The core question we address is:
 
 > Given only a chemical formula (e.g., BaTiO₃), can we efficiently estimate
 >
@@ -15,14 +15,13 @@ The core question I address is:
 This is done **without crystal structures**, **without DFT calculations**, and **without graph-based representations**.
 All predictions rely purely on elemental composition.
 
-I explore **five different learning strategies** to solve the same problem.
+We explore **five different learning strategies** to solve the same problem.
 The task remains identical across all methods; only the *learning mechanism* changes.
 
----
 
 ## Dataset
 
-I use a dataset of **150,201 inorganic materials**, where each entry contains:
+We use a dataset of **150,201 inorganic materials**, where each entry contains:
 
 * `formula` – chemical composition (e.g., LiFePO₄)
 * `formation_energy_per_atom` (DFT-derived)
@@ -37,11 +36,10 @@ I use a dataset of **150,201 inorganic materials**, where each entry contains:
 
 This dataset provides high-quality DFT ground truth, and the goal of all models is to learn a fast and inexpensive approximation to these properties.
 
----
 
 ## Data Splitting
 
-I split the dataset as follows:
+We split the dataset as follows:
 
 * 80% for training
 * 10% for validation
@@ -49,7 +47,6 @@ I split the dataset as follows:
 
 This ensures proper generalization, avoids memorization, and enables fair performance reporting.
 
----
 
 ## Composition Encoding Pipeline (Common to All Methods)
 
@@ -79,13 +76,12 @@ This representation encodes composition without introducing any structural infor
 
 Since different materials contain different numbers of elements, shorter compositions are padded with zeros so that batches can be processed efficiently.
 
----
 
 ## Method 1: Transformer-Based Composition Multi-Task Network (TC-MTL)
 
 ### Purpose
 
-This is my most advanced single-model architecture, designed to maximize predictive accuracy while maintaining training stability.
+This is our most advanced single-model architecture, designed to maximize predictive accuracy while maintaining training stability.
 
 ### Architecture
 
@@ -114,7 +110,7 @@ This is my most advanced single-model architecture, designed to maximize predict
 | Hull Distance MAE    | 0.076 eV      |
 | Stability F1 Score   | 0.898         |
 
----
+
 
 ## Method 2: Lightweight Transformer Composition Multi-Task Network (LTC-MTL)
 
@@ -141,7 +137,6 @@ To test whether architectural complexity is necessary for strong performance.
 
 Despite being significantly simpler, this model achieves nearly the same performance as the larger transformer, indicating that **problem formulation is more important than architectural depth**.
 
----
 
 ## Method 3: Ensemble of Transformer-Based Models (E-TC-MTL)
 
@@ -167,7 +162,6 @@ To improve robustness and reduce prediction variance.
 
 While not outperforming the best single model, the ensemble provides more reliable and stable predictions, making it useful for uncertainty-aware screening.
 
----
 
 ## Method 4: Optimized Transformer Composition Multi-Task Network (O-TC-MTL)
 
@@ -192,7 +186,6 @@ To improve generalization by optimizing training dynamics rather than changing m
 
 This model achieves the **best overall performance** among all composition-only neural approaches tested.
 
----
 
 ## Method 5: Feature-Based Multi-Task Learning with Curriculum Training (FB-MTL)
 
@@ -230,7 +223,6 @@ Instead of raw compositions, this method uses **MAGPIE descriptors**, including:
 
 This method achieves the best hull distance accuracy but underperforms in stability classification, while maintaining strong physical consistency.
 
----
 
 ## Final Comparison
 
@@ -242,7 +234,6 @@ This method achieves the best hull distance accuracy but underperforms in stabil
 | O-TC-MTL        | 0.104    | 0.066      | 0.909          |
 | FB-MTL (MAGPIE) | 0.103    | 0.059      | 0.819          |
 
----
 
 ## Key Takeaways
 
@@ -251,4 +242,3 @@ This method achieves the best hull distance accuracy but underperforms in stabil
 * Multi-task learning improves physical consistency
 * This work emphasizes **pipeline design and learning strategy**, not leaderboard chasing
 
----
