@@ -8,7 +8,7 @@ The feature importance values are computed by averaging the importance scores fr
 
 To improve interpretability, the importance values are **normalized to a scale of 0–100**, where the most influential feature receives a value of 100 and all other features are scaled relative to it.
 
-## Interpretation of Key Features
+## Interpretation of Key Features 
 
 Several categories of descriptors dominate the importance ranking:
 
